@@ -49,9 +49,8 @@ module.exports = (robot) ->
     return false
 
   check_feed = (robot) ->
-    robot.logger.debug "checking alerts feed... ", feed_url, (new Date())
+    robot.logger.debug "checking alerts feed... ", feed_url
     robot.http(feed_url).get() (err,res,body) ->
-      now = (new Date())
       feed = parse_feed(err,res,body)
       if feed
         latest = feed.getItems(0,1)[0]
@@ -60,12 +59,13 @@ module.exports = (robot) ->
           latest_date.setTime( latest_date.getTime() + (60*60*1000*broken_tz_adjust))
           robot.logger.debug "Last Check Time: ", last_check_time, " - Date of latest post: ", latest_date, " Delta: ", (latest_date - last_check_time)
 
-          if (latest_date - last_check_time ) >= 0
+          if (latest_date - last_check_time ) > 0
             robot.logger.info " found update: " + latest.getTitle()
             result = robot.messageRoom announce_room, message_prepend + ": " + latest.getTitle() + " -- " + latest.getPermalink()
             if !result
               robot.logger.error "robot.messageRoom failed: ", result
-        last_check_time = now
+
+          last_check_time = latest_date
 
   setInterval( check_feed, rss_interval*1000, robot)
   check_feed robot

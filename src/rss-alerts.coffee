@@ -38,18 +38,18 @@ else
 module.exports = (robot) ->
   parse_feed = (err,res,body) ->
     if res.statusCode is not 200
-      consle.log("Error retrieving feed - status: " + res.statusCode)
+      robot.logger.error "Error retrieving feed - status: ", res.statusCode
     else
       feed = new NodePie(body)
       try
         feed.init()
         return feed
       catch e
-        console.log("problem parsing feed", e)
+        robot.logger.error "problem parsing feed", e
     return false
 
   check_feed = (robot) ->
-    console.log "checking alerts feed .. " + (new Date())
+    robot.logger.debug "checking alerts feed... ", feed_url, (new Date())
     robot.http(feed_url).get() (err,res,body) ->
       now = (new Date())
       feed = parse_feed(err,res,body)
@@ -58,12 +58,13 @@ module.exports = (robot) ->
         if latest
           latest_date = latest.getUpdateDate()
           latest_date.setTime( latest_date.getTime() + (60*60*1000*broken_tz_adjust))
+          robot.logger.debug "Last Check Time: ", last_check_time, " - Date of latest post: ", latest_date
+
           if (latest_date - last_check_time ) >= 0
-            console.log "   found update: " + latest.getTitle()
+            robot.logger.info " found update: " + latest.getTitle()
             result = robot.messageRoom announce_room, message_prepend + ": " + latest.getTitle() + " -- " + latest.getPermalink()
             if !result
-              console.log "robot.messageRoom failed: ", result
+              robot.logger.error "robot.messageRoom failed: ", result
         last_check_time = now
 
   setInterval( check_feed, rss_interval*1000, robot)
-

@@ -58,7 +58,7 @@ module.exports = (robot) ->
         if latest
           latest_date = latest.getUpdateDate()
           latest_date.setTime( latest_date.getTime() + (60*60*1000*broken_tz_adjust))
-          robot.logger.debug "Last Check Time: ", last_check_time, " - Date of latest post: ", latest_date
+          robot.logger.debug "Last Check Time: ", last_check_time, " - Date of latest post: ", latest_date, " Delta: ", (latest_date - last_check_time)
 
           if (latest_date - last_check_time ) >= 0
             robot.logger.info " found update: " + latest.getTitle()

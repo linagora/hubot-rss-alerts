@@ -68,3 +68,4 @@ module.exports = (robot) ->
         last_check_time = now
 
   setInterval( check_feed, rss_interval*1000, robot)
+  check_feed robot
